@@ -125,7 +125,7 @@ private:
         Action temp_action;
         for (auto& node : nodes) {
             //random action
-            if (epsilon >= get_rand_real(0, 1)) {
+            if (epsilon / episode_num >= get_rand_real(0, 1)) {
                 auto random_num = get_rand_int(0, NumSlot - 1);
                 temp_action[node.node_num] = random_num;
                 ++node.num_visit[random_num];
@@ -181,7 +181,7 @@ private:
         }
     }
 
-    // distribute reward at the end of an episode based on 
+    // distribute rewards at the end of an episode based on 
     // whether a node has finised transmission or not
     void final_reward() {
         for (auto& node : nodes) {
@@ -247,9 +247,8 @@ private:
     int success_data = 0;
     int success_node = 0;
 
-    double gamma = 0.9;
-    double alpha = 0.1;
-    double epsilon = 0.01;
+
+    double epsilon = 0.1;
 
 
     unsigned int total_success = 0;

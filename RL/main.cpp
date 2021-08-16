@@ -14,7 +14,7 @@ int main() {
     MC.run();
     TD.run();
     std::string title_str;
-    title_str = "MC vs TD in Slotted ALOHA averaged w/ " + std::to_string(iterations_target) + " cases";
+    title_str = "MC vs TD in Slotted ALOHA averaged w/ " + std::to_string(iterations_target) + " seeds (Case 2)";
     plt::suptitle(title_str);
     plt::show();
     return 0;

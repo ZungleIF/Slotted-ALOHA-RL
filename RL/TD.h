@@ -133,7 +133,7 @@ private:
                 temp_action[node.node_num] = -1;
                 continue;
             }
-            if (epsilon >= get_rand_real(0, 1)) {
+            if (epsilon / episode_num >= get_rand_real(0, 1)) {
                 //random action
                 auto random_num = get_rand_int(0, NumSlot - 1);
                 temp_action[node.node_num] = random_num;
@@ -244,7 +244,7 @@ private:
 
     double gamma = 0.6;
     double alpha = 0.1;
-    double epsilon = 0.005;
+    double epsilon = 0.1;
 
 
     unsigned int total_success = 0;

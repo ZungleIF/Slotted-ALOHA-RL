@@ -12,15 +12,11 @@ constexpr double episode_success = 10;
 constexpr double episode_failure = -10;
 
 constexpr int frame_num_target = 10;
-constexpr int episode_num_target = 100;
+constexpr int episode_num_target = 200;
 
 // iterations w/ changing random seeds
 constexpr int iterations_target = 20;
-
-struct MC_Data {
-    std::vector<size_t> t_opt;
-    std::vector<double> con_vec;
-};
+constexpr int data_target = 10;
 
 struct Plot_Data {
     Plot_Data() :   success_frame(frame_num_target * episode_num_target, 0), success_data(episode_num_target, 0), success_node(episode_num_target, 0),
