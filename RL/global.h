@@ -8,8 +8,8 @@ constexpr int NumSlot = 10;
 // rewards
 constexpr double positive_feedback = 1;
 constexpr double negative_feedback = -1;
-constexpr double episode_success = 10;
-constexpr double episode_failure = -10;
+constexpr double episode_success = 10.0;
+constexpr double episode_failure = -10.0;
 
 constexpr int frame_num_target = 10;
 constexpr int episode_num_target = 200;
