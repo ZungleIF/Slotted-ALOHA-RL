@@ -27,6 +27,12 @@
     <ClInclude Include="z_random.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="nstep.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sarsa_ramda.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RL.cpp">
@@ -36,6 +42,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nstep.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

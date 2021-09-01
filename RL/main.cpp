@@ -6,16 +6,17 @@
 
 #include "TD.h"
 #include "RL.h"
-
+#include "nstep.h"
 
 int main() {
     SlottedAlohaRL_MC MC;
     SlottedAlohaRL_TD TD;
+    SlottedAlohaRL_n n(2, "2-step TD");
     MC.run();
     TD.run();
-    std::string title_str;
-    title_str = "MC vs TD in Slotted ALOHA averaged w/ " + std::to_string(iterations_target) + " seeds (Case 2)";
-    plt::suptitle(title_str);
+    n.run();
+
+    plt::suptitle("");
     plt::show();
     return 0;
 }

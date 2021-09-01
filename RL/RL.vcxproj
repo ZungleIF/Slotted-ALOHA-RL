@@ -129,12 +129,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="global.h" />
+    <ClInclude Include="nstep.h" />
     <ClInclude Include="RL.h" />
+    <ClInclude Include="sarsa_ramda.h" />
     <ClInclude Include="TD.h" />
     <ClInclude Include="z_random.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="nstep.cpp" />
     <ClCompile Include="RL.cpp" />
     <ClCompile Include="TD.cpp" />
   </ItemGroup>
