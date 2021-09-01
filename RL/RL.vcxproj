@@ -139,6 +139,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="nstep.cpp" />
     <ClCompile Include="RL.cpp" />
+    <ClCompile Include="sarsa_ramda.cpp" />
     <ClCompile Include="TD.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

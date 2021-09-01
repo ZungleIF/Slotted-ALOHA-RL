@@ -57,18 +57,19 @@ private:
         unsigned int node_num;
         unsigned int remaining_data = 10;
         bool is_success = false;
-        bool is_collision = false;
 
-        void reset(bool episode_end) {
+        void reset(bool iteration_end) {
             remaining_data = 10;
             is_success = false;
-            if (episode_end) {
+            if (iteration_end) {
                 Q = RowVectorXd::Random(NumSlot);
             }
         }
     private:
         static unsigned int counter;
     };
+
+
     typedef std::array<int, NumNode> State;
     typedef std::array<int, NumNode> Action;
     typedef std::array<Node, NumNode> NodeArr;
@@ -84,15 +85,17 @@ private:
         for (episode_num = 0; episode_num < episode_num_target; episode_num++) {
             A_1 = choose_action(A_1);
             returns[0] = A_1;
+
 #ifdef DEBUG
             cout << "Episode #" << episode_num << ":" << endl;
 #endif 
 
             // choose action and update Q matrix every step
             for (frame_num = 0; frame_num < frame_num_target; frame_num++) {
+                check_collision(A_1);
                 A_2 = choose_action(A_1);
                 returns[frame_num + 1] = A_2;
-                if (cur_update >= 0) {
+                if (cur_update > 0) {
                     update();
                     render(frame_num);
                 }
@@ -111,6 +114,7 @@ private:
             data.success_node[episode_num] += success_node;
             success_data = 0;
             success_node = 0;
+            final_reward();
 
 #ifdef DEBUG
             cout << "Final policy matrix" << endl;
@@ -129,40 +133,47 @@ private:
             cout << "Total Success: " << total_success << endl;
             cout << "Total Failure: " << total_failure << endl;
 #endif
-            final_reward();
 
-            for (auto& node : nodes) {
-                node.reset(false);
-            }
+            std::for_each(nodes.begin(), nodes.end(), [](Node& node) { node.reset(false); });
         }
     }
+
     // Choose an action based on the given state
     Action choose_action(const Action& action) {
-        Action temp_action;
+        Action action_ret;
         for (auto& node : nodes) {
             if (node.is_success) {
-                temp_action[node.node_num] = -1;
+                action_ret[node.node_num] = -1;
                 continue;
             }
             if (get_epsilon() >= get_rand_real(0, 1)) {
                 //random action
                 auto random_num = get_rand_int(0, NumSlot - 1);
-                temp_action[node.node_num] = random_num;
+                action_ret[node.node_num] = random_num;
             }
             else {
                 //optimal action
                 int index;
                 node.Q.maxCoeff(&index);
-                temp_action[node.node_num] = index;
+                action_ret[node.node_num] = index;
             }
         }
-        return temp_action;
+        return action_ret;
     }
 
     void check_collision(const Action& action) {
         for (auto& node : nodes) {
-            if(std::count())
+            if (std::count(action.begin(), action.end(), action[node.node_num]) == 1) {
+                --node.remaining_data;
+                ++success_data;
+                ++success_frame;
+                if (node.remaining_data == 0) {
+                    node.is_success = true;
+                }
+            }
         }
+        data.success_frame[frame_num_data++] += success_frame;
+        success_frame = 0;
     }
     // Update Q matrix based on TD algorithm
     void update() {
@@ -172,7 +183,6 @@ private:
         double predict = 0.0;
 
         unsigned int node_num;
-        bool first = true;
         for (int return_num = 0; return_num < sarsa_size; return_num++) {
             auto action = returns[cur_update + return_num + 1];
             for (auto& node : nodes) {
@@ -182,15 +192,6 @@ private:
                     // collision X
                     if (std::count(action.begin(), action.end(), action[node_num]) == 1) {
                         reward = positive_feedback;
-                        if (first) {
-                            --node.remaining_data;
-                            ++success_data;
-                            ++success_frame;
-                        }
-                        //
-                        if (node.remaining_data == 1) {
-                            node.is_success = true;
-                        }
                     }
                     // collision O
                     else {
@@ -200,7 +201,6 @@ private:
                 }
 
             }
-            first = false;
         }
 
 
@@ -216,8 +216,6 @@ private:
                 node.Q(returns[cur_update][node_num]) += alpha * (target[node_num] - predict);
             }
         }
-        data.success_frame[frame_num_data++] += success_frame;
-        success_frame = 0;
     }
 
     // distribute reward at the end of an episode based on 

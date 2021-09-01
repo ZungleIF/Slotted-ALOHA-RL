@@ -47,5 +47,8 @@
     <ClCompile Include="nstep.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sarsa_ramda.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

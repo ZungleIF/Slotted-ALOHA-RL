@@ -152,7 +152,7 @@ private:
                     // collision X
                     if (std::count(action.begin(), action.end(), action[nn]) == 1) {
                         reward = positive_feedback;
-                        node.remaining_data -= 1;
+                        --node.remaining_data;
                         ++success_data;
                         ++success_frame;
                         if (node.remaining_data == 0) {

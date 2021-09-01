@@ -7,16 +7,18 @@
 #include "TD.h"
 #include "RL.h"
 #include "nstep.h"
+#include "sarsa_ramda.h"
 
 int main() {
     SlottedAlohaRL_MC MC;
     SlottedAlohaRL_TD TD;
     SlottedAlohaRL_n n(2, "2-step TD");
+    SlottedAlohaRL_Ramda r(0.8);
     MC.run();
     TD.run();
     n.run();
-
-    plt::suptitle("");
+    r.run();
+    plt::suptitle("Comparison of RL Algorithms via Slotted ALOHA");
     plt::show();
     return 0;
 }
