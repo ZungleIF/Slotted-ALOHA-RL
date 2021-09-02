@@ -29,6 +29,10 @@ public:
         ramda(ramda), alpha(alpha), gamma(gamma)
     {
         plot_str = "TD(" + std::to_string(ramda) + ")";
+        int i = 0;
+        for (auto& node : nodes) {
+            node.node_num = i++;
+        }
     }
     void run() {
         std::ios::sync_with_stdio(false);
@@ -51,7 +55,8 @@ private:
     struct Node {
         friend class SlottedAlohaRL_Ramda;
     public:
-        Node() : node_num(counter++) {}
+        Node() = default;
+        Node(const int& _node_num) : node_num(_node_num) {}
 
         RowVectorXd Q = RowVectorXd::Random(NumSlot);
         unsigned int node_num;

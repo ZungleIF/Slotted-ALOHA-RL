@@ -25,10 +25,14 @@ using std::endl;
 // Each cannot observe other Node's Q matrix
 class SlottedAlohaRL_n {
 public:
-    SlottedAlohaRL_n(unsigned int sarsa_size = 1, std::string plot_str = "", double alpha = 0.1, double gamma = 0.6) : 
-        sarsa_size(sarsa_size), plot_str(plot_str), alpha(alpha), gamma(gamma)
+    SlottedAlohaRL_n(unsigned int sarsa_size = 1, double alpha = 0.1, double gamma = 0.6) : 
+        sarsa_size(sarsa_size), alpha(alpha), gamma(gamma)
     {
-
+        plot_str = std::to_string(sarsa_size) + "-step TD";
+        int i = 0;
+        for (auto& node : nodes) {
+            node.node_num = i++;
+        }
     }
     void run() {
         std::ios::sync_with_stdio(false);
@@ -51,7 +55,8 @@ private:
     struct Node {
         friend class SlottedAlohaRL_n;
     public:
-        Node() : node_num(counter++) {}
+        Node() = default;
+        Node(const int& _node_num) : node_num(_node_num) {}
 
         RowVectorXd Q = RowVectorXd::Random(NumSlot);
         unsigned int node_num;
