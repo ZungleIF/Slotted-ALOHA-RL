@@ -1,78 +1,25 @@
 #pragma once
-#include <iostream>
-#include <vector>
-#include <array>
-#include <set>
-#include <cmath>
-#include <limits>
-#include <iomanip>
-
-#include <Eigen/Dense>
-#include "matplotlibcpp.h"
-
-#include "z_random.h"
-#include "global.h"
-
-using namespace Eigen;
-namespace plt = matplotlibcpp;
-using std::cout;
-using std::endl;
+#include "base.h"
 
 struct Node_MC;
 class SlottedAlohaRL_MC;
 
 // Every Node has their own Q matrix and node number
 // Each cannot observe other Node's Q matrix
-struct Node_MC {
-    friend class SlottedAlohaRL_MC;
+
+
+
+class SlottedAlohaRL_MC : public RL_Base {
 public:
-    Node_MC() : node_num(counter++), remaining_data(10), is_success(false) {}
-
-    RowVectorXd Q = RowVectorXd::Random(NumSlot);
-    unsigned int node_num;
-    unsigned int remaining_data;
-    bool is_success;
-    std::array<int, NumSlot> num_visit = { 0 };
-
-    void reset(bool iteration_end) {
-        remaining_data = 10;
-        is_success = false;
-        std::fill(num_visit.begin(), num_visit.end(), 0);
-        if (iteration_end) {
-            Q = RowVectorXd::Random(NumSlot);
-        }
-    }
-private:
-    static unsigned int counter;
-};
-
-
-class SlottedAlohaRL_MC {
-public:
-    void run() {
-        init();
-        for (int i = 0; i < iterations_target; i++) {
-            run_iteration();
-            change_seed();
-            reset(true);
-        }
-        calc_average();
-        plot();
-    }
+    SlottedAlohaRL_MC(const double& epsilon, const double& ramda = 1, const double& alpha = 0.1, const double& gamma = 0.6) :
+        RL_Base(epsilon, "MC", ramda, alpha, gamma) {}
 
 
 
 
 private:
-    typedef std::array<int, NumNode> State;
-    typedef std::array<int, NumNode> Action;
-    typedef std::array<Node_MC, NumNode> NodeArr;
-
     void init() {
-        for (auto& node : nodes) {
-        }
     }
-
     void run_iteration() {
         // iterate episodes
         for (episode_num = 0; episode_num < episode_num_target; episode_num++) {
@@ -208,52 +155,6 @@ private:
 #endif
     }
 
-    void plot() {
-        plt::subplot(1, 3, 1);
-        plt::title("Success Frame");
-        plt::named_plot("MC", data.steps, data.success_frame);
-        plt::xlabel("# Steps");
-        plt::subplot(1, 3, 2);
-        plt::title("Success Data");
-        plt::named_plot("MC", data.episodes, data.success_data);
-        plt::xlabel("# Episodes");
-        plt::subplot(1, 3, 3);
-        plt::title("Success Node");
-        plt::named_plot("MC", data.episodes, data.success_node);
-        plt::xlabel("# Episodes");
-        plt::legend();
-    }
-
-    // average of data
-    void calc_average() {
-        std::for_each(data.success_frame.begin(), data.success_frame.end(), [](double& val) {val = val / iterations_target; });
-        std::for_each(data.success_data.begin(), data.success_data.end(), [](double& val) {val = val / iterations_target; });
-        std::for_each(data.success_node.begin(), data.success_node.end(), [](double& val) {val = val / iterations_target; });
-    }
-
-    void reset(bool episode_end) {
-        for (auto& node : nodes) {
-            node.reset(episode_end);
-        }
-        frame_num_data = 0;
-    }
-
-    NodeArr nodes;
     std::vector<Action> returns;
     Action now;
-    Plot_Data data;
-
-    int success_frame = 0;
-    int success_data = 0;
-    int success_node = 0;
-
-
-    double epsilon = 0.1;
-
-
-    unsigned int total_success = 0;
-    unsigned int total_failure = 0;
-    unsigned int frame_num = 0;
-    unsigned int episode_num = 0;
-    unsigned int frame_num_data = 0;
 };

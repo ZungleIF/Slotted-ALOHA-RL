@@ -1,24 +1,19 @@
 //#define DEBUG
 
 
-#include <iostream>
-#include <string>
 
-#include "TD.h"
 #include "RL.h"
-#include "nstep.h"
-#include "sarsa_ramda.h"
+#include "TD.h"
 
 int main() {
-    SlottedAlohaRL_MC MC;
-    SlottedAlohaRL_TD TD;
-    SlottedAlohaRL_n n(3);
-    SlottedAlohaRL_Ramda r(0.7);
+    SlottedAlohaRL_MC MC_1(0.1);
+    SlottedAlohaRL_MC MC_2(0.5);
 
-    MC.run();
+    SlottedAlohaRL_TD TD(0.1);
+
+    MC_1.run();
+    MC_2.run();
     TD.run();
-    n.run();
-    r.run();
 
     plt::suptitle("Comparison of RL Algorithms via Slotted ALOHA");
     plt::show();
