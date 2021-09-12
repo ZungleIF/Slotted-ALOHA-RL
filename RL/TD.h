@@ -24,30 +24,20 @@ class SlottedAlohaRL_TD;
 
 // Every Node has their own Q matrix and node number
 // Each cannot observe other Node's Q matrix
-struct Node_TD {
-    friend class SlottedAlohaRL_TD;
-public:
-    Node_TD() : node_num(counter++), remaining_data(10), is_success(false) {}
 
-    RowVectorXd Q = RowVectorXd::Random(NumSlot);
-    unsigned int node_num;
-    unsigned int remaining_data;
-    bool is_success;
-
-    void reset(bool episode_end) {
-        remaining_data = 10;
-        is_success = false;
-        if (episode_end) {
-            Q = RowVectorXd::Random(NumSlot);
-        }
-    }
-private:
-    static unsigned int counter;
-};
 
 
 class SlottedAlohaRL_TD {
 public:
+    SlottedAlohaRL_TD(const double& epsilon) :
+        epsilon(epsilon)
+    {
+        plot_str = "TD(e=" + std::to_string(epsilon) + ")";
+        int i = 0;
+        for (auto& node : nodes) {
+            node.node_num = i++;
+        }
+    }
     void run() {
         std::ios::sync_with_stdio(false);
         init();
@@ -59,16 +49,32 @@ public:
         calc_average();
         plot();
     }
-    void reset() {
-        *this = SlottedAlohaRL_TD();
-    }
 
 
 
 private:
+    struct Node {
+        friend class SlottedAlohaRL_TD;
+    public:
+        Node() = default;
+        Node(const int& _node_num) : node_num(_node_num) {}
+        RowVectorXd Q = RowVectorXd::Random(NumSlot);
+        unsigned int node_num;
+        unsigned int remaining_data = 0;
+        bool is_success;
+
+        void reset(bool episode_end) {
+            remaining_data = 10;
+            is_success = false;
+            if (episode_end) {
+                Q = RowVectorXd::Random(NumSlot);
+            }
+        }
+    };
+
     typedef std::array<int, NumNode> State;
     typedef std::array<int, NumNode> Action;
-    typedef std::array<Node_TD, NumNode> NodeArr;
+    typedef std::array<Node, NumNode> NodeArr;
     void init() {
         for (auto& node : nodes) {
             A_1[node.node_num] = get_rand_int(0, NumSlot - 1);
@@ -208,15 +214,15 @@ private:
     void plot() {
         plt::subplot(1, 3, 1);
         plt::title("Success Frame");
-        plt::named_plot("TD", data.steps, data.success_frame);
+        plt::named_plot(plot_str, data.steps, data.success_frame);
         plt::xlabel("# Steps");
         plt::subplot(1, 3, 2);
         plt::title("Success Data");
-        plt::named_plot("TD", data.episodes, data.success_data);
+        plt::named_plot(plot_str, data.episodes, data.success_data);
         plt::xlabel("# Episodes");
         plt::subplot(1, 3, 3);
         plt::title("Success Node");
-        plt::named_plot("TD", data.episodes, data.success_node);
+        plt::named_plot(plot_str, data.episodes, data.success_node);
         plt::xlabel("# Episodes");
         plt::legend();
     }
@@ -233,6 +239,8 @@ private:
         }
         frame_num_data = 0;
     }
+
+    std::string plot_str;
 
     NodeArr nodes;
     Action A_1, A_2;

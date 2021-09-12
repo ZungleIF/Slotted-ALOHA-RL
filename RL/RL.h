@@ -18,37 +18,18 @@ namespace plt = matplotlibcpp;
 using std::cout;
 using std::endl;
 
-struct Node_MC;
-class SlottedAlohaRL_MC;
-
-// Every Node has their own Q matrix and node number
-// Each cannot observe other Node's Q matrix
-struct Node_MC {
-    friend class SlottedAlohaRL_MC;
-public:
-    Node_MC() : node_num(counter++), remaining_data(10), is_success(false) {}
-
-    RowVectorXd Q = RowVectorXd::Random(NumSlot);
-    unsigned int node_num;
-    unsigned int remaining_data;
-    bool is_success;
-    std::array<int, NumSlot> num_visit = { 0 };
-
-    void reset(bool iteration_end) {
-        remaining_data = 10;
-        is_success = false;
-        std::fill(num_visit.begin(), num_visit.end(), 0);
-        if (iteration_end) {
-            Q = RowVectorXd::Random(NumSlot);
-        }
-    }
-private:
-    static unsigned int counter;
-};
-
 
 class SlottedAlohaRL_MC {
 public:
+    SlottedAlohaRL_MC(const double& epsilon) :
+        epsilon(epsilon)
+    {
+        plot_str = "MC(e=" + std::to_string(epsilon) + ")";
+        int i = 0;
+        for (auto& node : nodes) {
+            node.node_num = i++;
+        }
+    }
     void run() {
         init();
         for (int i = 0; i < iterations_target; i++) {
@@ -64,9 +45,32 @@ public:
 
 
 private:
+    // Every Node has their own Q matrix and node number
+    // Each cannot observe other Node's Q matrix
+    struct Node {
+        friend class SlottedAlohaRL_MC;
+    public:
+        Node() = default;
+        Node(const int& _node_num) : node_num(_node_num) {}
+        RowVectorXd Q = RowVectorXd::Random(NumSlot);
+        unsigned int node_num;
+        unsigned int remaining_data = 10;
+        bool is_success;
+        std::array<int, NumSlot> num_visit = { 0 };
+
+        void reset(bool iteration_end) {
+            remaining_data = 10;
+            is_success = false;
+            std::fill(num_visit.begin(), num_visit.end(), 0);
+            if (iteration_end) {
+                Q = RowVectorXd::Random(NumSlot);
+            }
+        }
+    };
+
     typedef std::array<int, NumNode> State;
     typedef std::array<int, NumNode> Action;
-    typedef std::array<Node_MC, NumNode> NodeArr;
+    typedef std::array<Node, NumNode> NodeArr;
 
     void init() {
         for (auto& node : nodes) {
@@ -211,15 +215,15 @@ private:
     void plot() {
         plt::subplot(1, 3, 1);
         plt::title("Success Frame");
-        plt::named_plot("MC", data.steps, data.success_frame);
+        plt::named_plot(plot_str, data.steps, data.success_frame);
         plt::xlabel("# Steps");
         plt::subplot(1, 3, 2);
         plt::title("Success Data");
-        plt::named_plot("MC", data.episodes, data.success_data);
+        plt::named_plot(plot_str, data.episodes, data.success_data);
         plt::xlabel("# Episodes");
         plt::subplot(1, 3, 3);
         plt::title("Success Node");
-        plt::named_plot("MC", data.episodes, data.success_node);
+        plt::named_plot(plot_str, data.episodes, data.success_node);
         plt::xlabel("# Episodes");
         plt::legend();
     }
@@ -238,6 +242,7 @@ private:
         frame_num_data = 0;
     }
 
+    std::string plot_str;
     NodeArr nodes;
     std::vector<Action> returns;
     Action now;
@@ -249,6 +254,7 @@ private:
 
 
     double epsilon = 0.1;
+
 
 
     unsigned int total_success = 0;
