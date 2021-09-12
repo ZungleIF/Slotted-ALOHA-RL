@@ -15,12 +15,12 @@ constexpr int frame_num_target = 10;
 constexpr int episode_num_target = 150;
 
 // iterations w/ changing random seeds
-constexpr int iterations_target = 100;
+constexpr int iterations_target = 50;
 constexpr int data_target = 10;
 
 struct Plot_Data {
     Plot_Data() :   success_frame(frame_num_target * episode_num_target, 0), success_data(episode_num_target, 0), success_node(episode_num_target, 0),
-                    episodes(episode_num_target), steps(frame_num_target * episode_num_target)
+                    cum_reward(frame_num_target * episode_num_target, 0), episodes(episode_num_target), steps(frame_num_target * episode_num_target)
     {
         std::iota(episodes.begin(), episodes.end(), 0);
         std::iota(steps.begin(), steps.end(), 0);
@@ -28,6 +28,9 @@ struct Plot_Data {
     std::vector<double> success_frame;  // sucesssful frames that every node was successful per step
     std::vector<double> success_data;   // successful data transmitted per episode
     std::vector<double> success_node;   // successful nodes per episode
+
+    std::vector<double> cum_reward;
+
     std::vector<int> episodes;          // x axis for plotting
     std::vector<int> steps;             // x axis for plotting
 };

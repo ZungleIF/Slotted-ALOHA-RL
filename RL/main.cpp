@@ -9,9 +9,9 @@
 
 
 int main() {
-    SlottedAlohaRL_MC MC_1(0.1);
+    SlottedAlohaRL_MC MC_1(0.05);
     SlottedAlohaRL_MC MC_2(0.5);
-    SlottedAlohaRL_TD TD_1(0.1);
+    SlottedAlohaRL_TD TD_1(0.05);
     SlottedAlohaRL_TD TD_2(0.5);
 
     MC_1.run();

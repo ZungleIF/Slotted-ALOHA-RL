@@ -129,6 +129,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="global.h" />
+    <ClInclude Include="include.h" />
     <ClInclude Include="nstep.h" />
     <ClInclude Include="RL.h" />
     <ClInclude Include="sarsa_ramda.h" />

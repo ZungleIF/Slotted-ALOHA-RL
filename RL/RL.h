@@ -1,30 +1,14 @@
-#pragma once
-#include <iostream>
-#include <vector>
-#include <array>
-#include <set>
-#include <cmath>
-#include <limits>
-#include <iomanip>
-
-#include <Eigen/Dense>
-#include "matplotlibcpp.h"
-
-#include "z_random.h"
-#include "global.h"
-
-using namespace Eigen;
-namespace plt = matplotlibcpp;
-using std::cout;
-using std::endl;
-
+﻿#pragma once
+#include "include.h"
 
 class SlottedAlohaRL_MC {
 public:
     SlottedAlohaRL_MC(const double& epsilon) :
         epsilon(epsilon)
     {
-        plot_str = "MC(e=" + std::to_string(epsilon) + ")";
+        std::stringstream stream;
+        stream << std::fixed << std::setprecision(2) << epsilon;
+        plot_str = "MC(e=" + stream.str() + ")";
         int i = 0;
         for (auto& node : nodes) {
             node.node_num = i++;
@@ -87,6 +71,7 @@ private:
             for (frame_num = 0; frame_num < frame_num_target; frame_num++) {
                 choose_action();
                 render(frame_num);
+                data.cum_reward[step_num++] += cur_reward;
             }
 
             update();
@@ -122,6 +107,7 @@ private:
             cout << "Total Failure: " << total_failure << endl;
 #endif
         }
+        step_num = 0;
     }
     // Choose an action based on the given state
     // and save returned actions to a vector according to MC algorithm
@@ -168,6 +154,7 @@ private:
                         reward = negative_feedback;
                     }
                     node.Q(action[nn]) += reward;
+                    cur_reward += reward;
                 }
             }
             data.success_frame[frame_num_data++] += success_frame;
@@ -193,9 +180,11 @@ private:
             node.Q.maxCoeff(&index);
             if (node.is_success) {
                 node.Q[index] += episode_success;
+                cur_reward += episode_success;
             }
             else {
                 node.Q[index] += episode_failure;
+                cur_reward += episode_failure;
             }
         }
     }
@@ -213,18 +202,22 @@ private:
     }
 
     void plot() {
-        plt::subplot(1, 3, 1);
-        plt::title("Success Frame");
-        plt::named_plot(plot_str, data.steps, data.success_frame);
+        //plt::subplot(1, 3, 1);
+        //plt::title("Success Frame");
+        //plt::named_plot(plot_str, data.steps, data.success_frame);
+        //plt::xlabel("# Steps");
+        //plt::subplot(1, 3, 2);
+        //plt::title("Success Data");
+        //plt::named_plot(plot_str, data.episodes, data.success_data);
+        //plt::xlabel("# Episodes");
+        //plt::subplot(1, 3, 3);
+        //plt::title("Success Node");
+        //plt::named_plot(plot_str, data.episodes, data.success_node);
+        //plt::xlabel("# Episodes");
+        plt::subplot(1, 1, 1);
+        plt::named_plot(plot_str, data.steps, data.cum_reward);
         plt::xlabel("# Steps");
-        plt::subplot(1, 3, 2);
-        plt::title("Success Data");
-        plt::named_plot(plot_str, data.episodes, data.success_data);
-        plt::xlabel("# Episodes");
-        plt::subplot(1, 3, 3);
-        plt::title("Success Node");
-        plt::named_plot(plot_str, data.episodes, data.success_node);
-        plt::xlabel("# Episodes");
+        plt::ylabel("Cumulative Rewards");
         plt::legend();
     }
 
@@ -233,6 +226,7 @@ private:
         std::for_each(data.success_frame.begin(), data.success_frame.end(), [](double& val) {val = val / iterations_target; });
         std::for_each(data.success_data.begin(), data.success_data.end(), [](double& val) {val = val / iterations_target; });
         std::for_each(data.success_node.begin(), data.success_node.end(), [](double& val) {val = val / iterations_target; });
+        std::for_each(data.cum_reward.begin(), data.cum_reward.end(), [](double& val) {val = val / iterations_target; });
     }
 
     void reset(bool episode_end) {
@@ -240,6 +234,7 @@ private:
             node.reset(episode_end);
         }
         frame_num_data = 0;
+        cur_reward = 0;
     }
 
     std::string plot_str;
@@ -255,11 +250,13 @@ private:
 
     double epsilon = 0.1;
 
-
+    double cur_reward = 0;
 
     unsigned int total_success = 0;
     unsigned int total_failure = 0;
     unsigned int frame_num = 0;
     unsigned int episode_num = 0;
     unsigned int frame_num_data = 0;
+
+    unsigned int step_num = 0;
 };

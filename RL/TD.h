@@ -1,38 +1,14 @@
-#pragma once
-
-#include <iostream>
-#include <vector>
-#include <array>
-#include <set>
-#include <cmath>
-#include <limits>
-#include <iomanip>
-
-#include <Eigen/Dense>
-#include "matplotlibcpp.h"
-
-#include "z_random.h"
-#include "global.h"
-
-using namespace Eigen;
-namespace plt = matplotlibcpp;
-using std::cout;
-using std::endl;
-
-struct Node_TD;
-class SlottedAlohaRL_TD;
-
-// Every Node has their own Q matrix and node number
-// Each cannot observe other Node's Q matrix
-
-
+﻿#pragma once
+#include "include.h"
 
 class SlottedAlohaRL_TD {
 public:
     SlottedAlohaRL_TD(const double& epsilon) :
         epsilon(epsilon)
     {
-        plot_str = "TD(e=" + std::to_string(epsilon) + ")";
+        std::stringstream stream;
+        stream << std::fixed << std::setprecision(2) << epsilon;
+        plot_str = "TD(e=" + stream.str() + ")";
         int i = 0;
         for (auto& node : nodes) {
             node.node_num = i++;
@@ -53,6 +29,8 @@ public:
 
 
 private:
+    // Every Node has their own Q matrix and node number
+// Each cannot observe other Node's Q matrix
     struct Node {
         friend class SlottedAlohaRL_TD;
     public:
@@ -177,11 +155,15 @@ private:
                 double predict = node.Q(A_1[nn]);
                 double target = reward + gamma * node.Q(A_2[nn]);
                 node.Q(A_1[nn]) += alpha * (target - predict);
+
+                cur_reward += reward;
             }
         }
+        data.cum_reward[frame_num_data] += cur_reward;
         data.success_frame[frame_num_data++] += success_frame;
         success_frame = 0;
         A_1 = A_2;
+
     }
 
     // distribute reward at the end of an episode based on 
@@ -192,9 +174,11 @@ private:
             node.Q.maxCoeff(&index);
             if (node.is_success) {
                 node.Q[index] += episode_success;
+                cur_reward += episode_success;
             }
             else {
                 node.Q[index] += episode_failure;
+                cur_reward += episode_failure;
             }
         }
     }
@@ -212,18 +196,22 @@ private:
     }
 
     void plot() {
-        plt::subplot(1, 3, 1);
-        plt::title("Success Frame");
-        plt::named_plot(plot_str, data.steps, data.success_frame);
+        //plt::subplot(1, 3, 1);
+        //plt::title("Success Frame");
+        //plt::named_plot(plot_str, data.steps, data.success_frame);
+        //plt::xlabel("# Steps");
+        //plt::subplot(1, 3, 2);
+        //plt::title("Success Data");
+        //plt::named_plot(plot_str, data.episodes, data.success_data);
+        //plt::xlabel("# Episodes");
+        //plt::subplot(1, 3, 3);
+        //plt::title("Success Node");
+        //plt::named_plot(plot_str, data.episodes, data.success_node);
+        //plt::xlabel("# Episodes");
+        plt::subplot(1, 1, 1);
+        plt::named_plot(plot_str, data.steps, data.cum_reward);
         plt::xlabel("# Steps");
-        plt::subplot(1, 3, 2);
-        plt::title("Success Data");
-        plt::named_plot(plot_str, data.episodes, data.success_data);
-        plt::xlabel("# Episodes");
-        plt::subplot(1, 3, 3);
-        plt::title("Success Node");
-        plt::named_plot(plot_str, data.episodes, data.success_node);
-        plt::xlabel("# Episodes");
+        plt::ylabel("Cumulative Rewards");
         plt::legend();
     }
 
@@ -231,6 +219,8 @@ private:
         std::for_each(data.success_frame.begin(), data.success_frame.end(), [](double& val) {val = val / iterations_target; });
         std::for_each(data.success_data.begin(), data.success_data.end(), [](double& val) {val = val / iterations_target; });
         std::for_each(data.success_node.begin(), data.success_node.end(), [](double& val) {val = val / iterations_target; });
+        std::for_each(data.cum_reward.begin(), data.cum_reward.end(), [](double& val) {val = val / iterations_target; });
+
     }
 
     void reset(bool episode_end) {
@@ -238,6 +228,7 @@ private:
             node.reset(true);
         }
         frame_num_data = 0;
+        cur_reward = 0;
     }
 
     std::string plot_str;
@@ -260,4 +251,6 @@ private:
     unsigned int frame_num = 0;
     unsigned int frame_num_data = 0;
     unsigned int episode_num = 0;
+
+    double cur_reward = 0;
 };
