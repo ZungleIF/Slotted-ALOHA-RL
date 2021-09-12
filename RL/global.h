@@ -8,14 +8,14 @@ constexpr int NumSlot = 10;
 // rewards
 constexpr double positive_feedback = 1.0;
 constexpr double negative_feedback = -1.0;
-constexpr double episode_success = 1000.0;
-constexpr double episode_failure = -1000.0;
+constexpr double episode_success = 10.0;
+constexpr double episode_failure = -10.0;
 
 constexpr int frame_num_target = 10;
 constexpr int episode_num_target = 150;
 
 // iterations w/ changing random seeds
-constexpr int iterations_target = 1000;
+constexpr int iterations_target = 100;
 constexpr int data_target = 10;
 
 struct Plot_Data {

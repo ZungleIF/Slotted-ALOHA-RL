@@ -128,7 +128,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="base.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="nstep.h" />
     <ClInclude Include="RL.h" />
