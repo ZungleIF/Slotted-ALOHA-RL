@@ -71,7 +71,6 @@ private:
             for (frame_num = 0; frame_num < frame_num_target; frame_num++) {
                 choose_action();
                 render(frame_num);
-                data.cum_reward[step_num++] += cur_reward;
             }
 
             update();
@@ -85,6 +84,9 @@ private:
             success_data = 0;
             success_node = 0;
             final_reward();
+            data.cum_reward[episode_num] += cur_reward;
+            cur_reward = 0;
+           
             for (auto& node : nodes) {
                 node.reset(false);
             }
@@ -215,8 +217,8 @@ private:
         //plt::named_plot(plot_str, data.episodes, data.success_node);
         //plt::xlabel("# Episodes");
         plt::subplot(1, 1, 1);
-        plt::named_plot(plot_str, data.steps, data.cum_reward);
-        plt::xlabel("# Steps");
+        plt::named_plot(plot_str, data.episodes, data.cum_reward);
+        plt::xlabel("# Episodes");
         plt::ylabel("Cumulative Rewards");
         plt::legend();
     }

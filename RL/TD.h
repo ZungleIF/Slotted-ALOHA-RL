@@ -82,8 +82,10 @@ private:
             }
             data.success_data[episode_num] += success_data;
             data.success_node[episode_num] += success_node;
+            
             success_data = 0;
             success_node = 0;
+            
 
 #ifdef DEBUG
             cout << "Final policy matrix" << endl;
@@ -103,7 +105,8 @@ private:
             cout << "Total Failure: " << total_failure << endl;
 #endif
             final_reward();
-
+            data.cum_reward[episode_num] += cur_reward;
+            cur_reward = 0;
             for (auto& node : nodes) {
                 node.reset(false);
             }
@@ -159,7 +162,6 @@ private:
                 cur_reward += reward;
             }
         }
-        data.cum_reward[frame_num_data] += cur_reward;
         data.success_frame[frame_num_data++] += success_frame;
         success_frame = 0;
         A_1 = A_2;
@@ -209,8 +211,8 @@ private:
         //plt::named_plot(plot_str, data.episodes, data.success_node);
         //plt::xlabel("# Episodes");
         plt::subplot(1, 1, 1);
-        plt::named_plot(plot_str, data.steps, data.cum_reward);
-        plt::xlabel("# Steps");
+        plt::named_plot(plot_str, data.episodes, data.cum_reward);
+        plt::xlabel("# Episodes");
         plt::ylabel("Cumulative Rewards");
         plt::legend();
     }
